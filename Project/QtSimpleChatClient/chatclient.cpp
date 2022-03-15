@@ -61,12 +61,7 @@ void ChatClient::sendMessage(const QString &text)
     e.generatePairKey(pub, priv, keyWord); // or other rsa size
     QByteArray msg = text.toUtf8();
     auto encryptMessage = e.encode(msg, pub);
-    qDebug() << encryptMessage;
-    qDebug() << QString::fromLocal8Bit(encryptMessage);
-    qDebug() << e.decode(encryptMessage, priv);
-    QTextCodec *codec = QTextCodec::codecForName("UTF-16");
-    QString string = codec->toUnicode(encryptMessage);
-    message[QStringLiteral("texto")] = string;
+    message[QStringLiteral("texto")] = QString::fromLocal8Bit(encryptMessage);
     // send the JSON using QDataStream
     clientStream << QJsonDocument(message).toJson();
 }
@@ -114,12 +109,7 @@ void ChatClient::jsonReceived(const QJsonObject &docObj)
         QRSAEncryption e(QRSAEncryption::Rsa::RSA_128);
         e.generatePairKey(pub, priv, keyWord); // or other rsa size
         auto decodedMessage = e.decode(encryptMessage.toLocal8Bit(), priv);
-        qDebug() << encryptMessage;
-        qDebug() << decodedMessage;
-        qDebug() << QString::fromLocal8Bit(decodedMessage);
-        QTextCodec *codec = QTextCodec::codecForName("UTF-16");
-        QString string = codec->toUnicode(decodedMessage);
-        emit messageReceived(senderVal.toString(), string);
+        emit messageReceived(senderVal.toString(), QString::fromLocal8Bit(decodedMessage));
     } else if (typeVal.toString().compare(QLatin1String("nuevoUsuario"), Qt::CaseInsensitive) == 0) { // A user joined the chat
         // we extract the username of the new user
         const QJsonValue usernameVal = docObj.value(QLatin1String("usuario"));
